@@ -10,18 +10,18 @@ namespace People
     
     public class PersonRepository
     {
-        private SQLiteConnection conn;
+        private SQLiteAsyncConnection conn;
         public string StatusMessage { get; set; }
 
         public PersonRepository(string dbPath)
         {
             // TODO: Initialize a new SQLiteConnection
             // TODO: Create the Person table
-            conn = new SQLiteConnection(dbPath);
-            conn.CreateTable<Person>();
+            conn = new SQLiteAsyncConnection(dbPath);
+            conn.CreateTableAsync<Person>().Wait();
         }
 
-        public void AddNewPerson(string name)
+        public async Task AddNewPersonAsync(string name)
         {
             int result = 0;
             try
@@ -31,7 +31,7 @@ namespace People
                     throw new Exception("Valid name required");
 
                 // TODO: insert a new person into the Person table
-                result = conn.Insert(new Person { Name = name });
+                result = await conn.InsertAsync(new Person { Name = name });
 
                 StatusMessage = string.Format("{0} record(s) added [Name: {1})", result, name);
             }
@@ -42,11 +42,11 @@ namespace People
 
         }
 
-        public List<Person> GetAllPeople()
+        public async Task <List<Person>> GetAllPeopleAsync()
         {
             try
             {
-                return conn.Table<Person>().ToList();
+                return await conn.Table<Person>().ToListAsync();
             }
             catch (Exception ex)
             {
